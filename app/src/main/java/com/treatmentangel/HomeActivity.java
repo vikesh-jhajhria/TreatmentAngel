@@ -96,14 +96,7 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
                 // Get data associated with the specified position
                 // in the list (AdapterView)
                 String description = (String) parent.getItemAtPosition(position);
-                LatLng latLng = getLocationInfo(description);
-                if (latLng != null) {
-                    lat = latLng.latitude;
-                    lng = latLng.longitude;
-                } else {
-                    lat = 0;
-                    lng = 0;
-                }
+                getLocationInfo(description);
             }
         });
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -137,11 +130,12 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
                 speciality = ((EditText) findViewById(R.id.speciality)).getText().toString().trim();
                 if (treatment != null && !treatment.isEmpty()) {
                     if (speciality != null && !speciality.isEmpty()) {
-                        //if (lat != 0 && lng != 0) {
-                        search(treatment, speciality, 34.009009, -118.271954);
-                        /*} else {
+                        if (lat != 0 && lng != 0) {
+                        //search(treatment, speciality, 34.009009, -118.271954);
+                        search(treatment, speciality, lat, lng);
+                        } else {
                             Toast.makeText(HomeActivity.this, "Please select a valid location", Toast.LENGTH_SHORT).show();
-                        }*/
+                        }
                     } else {
                         Toast.makeText(HomeActivity.this, "Please enter speciality", Toast.LENGTH_SHORT).show();
                     }
@@ -212,7 +206,7 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
                 dismissProgressDialog();
                 try {
                     Config.searchResultArray = new JSONArray(result);
-                    startActivity(new Intent(HomeActivity.this,DoctorsActivity.class));
+                    startActivity(new Intent(HomeActivity.this, DoctorsActivity.class));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -225,81 +219,71 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
 
     ////////////////////
 
-    public LatLng getLocationInfo(String address) {
-
-
-        address = address.replaceAll(" ", "%20");
-        HttpURLConnection conn = null;
-        StringBuilder jsonResults = new StringBuilder();
-        StringBuilder stringBuilder = new StringBuilder();
-        try {
-            /*StringBuilder sb = new StringBuilder("http://maps.google.com/maps/api/geocode/json");
-            sb.append("?address=" + URLEncoder.encode(address, "utf8"));
-            sb.append("&sensor=false");
-
-            URL url = new URL(sb.toString());
-            conn = (HttpURLConnection) url.openConnection();
-            InputStreamReader in = new InputStreamReader(conn.getInputStream());
-
-            // Load the results into a StringBuilder
-            int read;
-            char[] buff = new char[1024];
-            while ((read = in.read(buff)) != -1) {
-                jsonResults.append(buff, 0, read);
+    public Void getLocationInfo(String address) {
+        new AsyncTask<String, Void, Void>() {
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                showProgessDialog();
             }
-            JSONObject jsonObj = new JSONObject(jsonResults.toString());
-            */
 
-            /*HttpPost httppost = new HttpPost("http://maps.google.com/maps/api/geocode/json?address=" + address + "&sensor=false");
-            HttpClient client = new DefaultHttpClient();
-            HttpResponse response;
-            stringBuilder = new StringBuilder();
+            @Override
+            protected Void doInBackground(String... add) {
+                String str = add[0];
+                String address = str.replaceAll(" ", "%20");
+                HttpURLConnection conn = null;
+                StringBuilder jsonResults = new StringBuilder();
+                StringBuilder stringBuilder = new StringBuilder();
+                try {
+                    StringBuilder sb = new StringBuilder("http://maps.google.com/maps/api/geocode/json");
+                    sb.append("?address=" + URLEncoder.encode(address, "utf8"));
+                    sb.append("&sensor=false");
 
+                    URL url = new URL(sb.toString());
+                    conn = (HttpURLConnection) url.openConnection();
+                    InputStreamReader in = new InputStreamReader(conn.getInputStream());
 
-            response = client.execute(httppost);
-            HttpEntity entity = response.getEntity();
-            InputStream stream = entity.getContent();
-            int b;
-            while ((b = stream.read()) != -1) {
-                stringBuilder.append((char) b);
-            }
-            JSONObject jsonObj = new JSONObject();
-            try {
-                jsonObj = new JSONObject(stringBuilder.toString());
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }*/
-
-            HashMap<String, String> map = new HashMap<>();
-            map.put("address", address);
-            map.put("sensor", "false");
-            //String str = HTTPUrlConnection.getInstance().loadPost("http://maps.google.com/maps/api/geocode/json", map);
-            String str = HTTPUrlConnection.getInstance().loadGet("http://maps.google.com/maps/api/geocode/json?address=" + address + "&sensor=false");
-            JSONObject jsonObj = new JSONObject(str);
+                    // Load the results into a StringBuilder
+                    int read;
+                    char[] buff = new char[1024];
+                    while ((read = in.read(buff)) != -1) {
+                        jsonResults.append(buff, 0, read);
+                    }
+                    JSONObject jsonObj = new JSONObject(jsonResults.toString());
 
 
-            try {
+                    try {
 
-                double longitude = ((JSONArray) jsonObj.get("results")).getJSONObject(0)
-                        .getJSONObject("geometry").getJSONObject("location")
-                        .getDouble("lng");
+                        double longitude = ((JSONArray) jsonObj.get("results")).getJSONObject(0)
+                                .getJSONObject("geometry").getJSONObject("location")
+                                .getDouble("lng");
 
-                double latitude = ((JSONArray) jsonObj.get("results")).getJSONObject(0)
-                        .getJSONObject("geometry").getJSONObject("location")
-                        .getDouble("lat");
+                        double latitude = ((JSONArray) jsonObj.get("results")).getJSONObject(0)
+                                .getJSONObject("geometry").getJSONObject("location")
+                                .getDouble("lat");
 
-                return new LatLng(latitude, longitude);
-            } catch (JSONException e) {
+                        Log.v("LATLONG", latitude + "," + longitude);
+
+                        lat = latitude;
+                        lng = longitude;
+                        //return new LatLng(latitude, longitude);
+                    } catch (JSONException e) {
+                        return null;
+
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    if (conn != null) {
+                        dismissProgressDialog();
+                        conn.disconnect();
+                    }
+                }
                 return null;
+            }
+        }.execute(address);
 
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (conn != null) {
-                conn.disconnect();
-            }
-        }
+
         return null;
     }
 
@@ -324,6 +308,7 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
                 StringBuilder sb = new StringBuilder(PLACES_API_BASE + TYPE_AUTOCOMPLETE + OUT_JSON);
                 sb.append("?key=" + API_KEY);
                 sb.append("&input=" + URLEncoder.encode(input, "utf8"));
+                //StringBuilder sb = new StringBuilder("https://maps.google.com/maps/api/geocode/json?address=Redeye%20Grill,%207th%20Avenue,%20New%20York,%20NY,%20USA&sensor=false");
 
                 URL url = new URL(sb.toString());
                 conn = (HttpURLConnection) url.openConnection();
@@ -335,6 +320,7 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
                 while ((read = in.read(buff)) != -1) {
                     jsonResults.append(buff, 0, read);
                 }
+                in.close();
             } catch (MalformedURLException e) {
                 Log.e(TAG, "Error processing Places API URL", e);
                 return resultList;
