@@ -20,7 +20,8 @@ public class AppPreferences {
     public static final String LATITUDE = "LATITUDE";
     public static final String LONGITUDE = "LONGITUDE";
     public static final String FIREBASE_ID = "FIREBASE_ID";
-    private static final String SHARED_PREFERENCE_NAME = "BUSINESS_MANAGER";
+    public static final String USER_DATA = "USER_DATA";
+    private static final String SHARED_PREFERENCE_NAME = "TA";
     private SharedPreferences mPrefs;
 
     private AppPreferences(Context context) {
@@ -70,6 +71,16 @@ public class AppPreferences {
 
         SharedPreferences.Editor editor = mPrefs.edit();
         editor.putString(USER_NAME, name);
+        editor.commit();
+    }
+    public String getUserData() {
+        return mPrefs.getString(USER_DATA, "");
+    }
+
+    public void setUserData(String data) {
+
+        SharedPreferences.Editor editor = mPrefs.edit();
+        editor.putString(USER_DATA, data);
         editor.commit();
     }
 

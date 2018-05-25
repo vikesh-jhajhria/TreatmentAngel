@@ -12,8 +12,10 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.treatmentangel.utils.AppPreferences;
 import com.treatmentangel.utils.Config;
 import com.treatmentangel.utils.HTTPUrlConnection;
+import com.treatmentangel.utils.MyTextWatcher;
 import com.treatmentangel.utils.Utils;
 
 import org.json.JSONArray;
@@ -38,30 +40,6 @@ public class LoginActivity extends BaseActivity {
         ((EditText) findViewById(R.id.edt_pass)).addTextChangedListener(new MyTextWatcher(findViewById(R.id.til_pass)));
     }
 
-    class MyTextWatcher implements TextWatcher {
-
-        TextInputLayout til;
-
-        public MyTextWatcher(View view) {
-            til = (TextInputLayout) view;
-        }
-
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-            til.setErrorEnabled(false);
-            til.setError("");
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-
-        }
-    }
 
     @Override
     public void onClick(View view) {
@@ -108,7 +86,7 @@ public class LoginActivity extends BaseActivity {
                 HashMap<String, String> map = new HashMap<>();
                 map.put("email_id", params[0]);
                 map.put("password", params[1]);
-                return HTTPUrlConnection.getInstance().loadPost(Config.BASE_URL + "/api/user_login", map);
+                return HTTPUrlConnection.getInstance().loadPost(Config.BASE_URL + "api/user_login", map);
             }
 
             @Override
@@ -118,7 +96,10 @@ public class LoginActivity extends BaseActivity {
                 try {
                     JSONObject obj = new JSONObject(result);
                     if (obj.getString("status_id").equalsIgnoreCase("1")) {
+                        JSONObject data = obj.getJSONObject("user_data");
+                        AppPreferences.getAppPreferences(getApplicationContext()).setUserData(obj.toString());
                         startActivity(new Intent(LoginActivity.this, HomeActivity.class));
+                        finish();
                     } else {
                         Toast.makeText(LoginActivity.this, obj.getString("status_msg"), Toast.LENGTH_SHORT).show();
                     }

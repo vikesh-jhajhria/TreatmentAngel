@@ -28,6 +28,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.treatmentangel.model.SearchModel;
 import com.treatmentangel.utils.APIClient;
 import com.treatmentangel.utils.ApiInterface;
+import com.treatmentangel.utils.AppPreferences;
 import com.treatmentangel.utils.Config;
 import com.treatmentangel.utils.HTTPUrlConnection;
 
@@ -61,6 +62,7 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
     Spinner spinner;
     double lat = 0, lng = 0;
     AutoCompleteTextView autocompleteView;
+    private static final String API_KEY = "AIzaSyCs7y9plmgR49eaBqe1D7hj5ezYzEk08rs";
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -72,7 +74,11 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
 
                 return true;
             case R.id.navigation_login:
-                startActivity(new Intent(HomeActivity.this, LoginActivity.class));
+                if (AppPreferences.getAppPreferences(getApplicationContext()).getUserData().isEmpty()) {
+                    startActivity(new Intent(HomeActivity.this, LoginActivity.class));
+                } else {
+                    logout();
+                }
                 return true;
             case R.id.navigation_notifications:
                 startActivity(new Intent(HomeActivity.this, NotificationActivity.class));
@@ -108,6 +114,12 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
 
         navigationView.setNavigationItemSelectedListener(this);
 
+        if (AppPreferences.getAppPreferences(getApplicationContext()).getUserData().isEmpty()) {
+            ((MenuItem) navigationView.getMenu().findItem(R.id.navigation_login)).setTitle("Login");
+        } else {
+            ((MenuItem) navigationView.getMenu().findItem(R.id.navigation_login)).setTitle("Logout");
+        }
+
         findViewById(R.id.btn_search).setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -131,8 +143,8 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
                 if (treatment != null && !treatment.isEmpty()) {
                     if (speciality != null && !speciality.isEmpty()) {
                         if (lat != 0 && lng != 0) {
-                        //search(treatment, speciality, 34.009009, -118.271954);
-                        search(treatment, speciality, lat, lng);
+                            //search(treatment, speciality, 34.009009, -118.271954);
+                            search(treatment, speciality, lat, lng);
                         } else {
                             Toast.makeText(HomeActivity.this, "Please select a valid location", Toast.LENGTH_SHORT).show();
                         }
@@ -162,24 +174,11 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
 
-    /*private void search(String treatment, String speciality, double lat, double lng) {
-        showProgessDialog();
-        APIClient.getClient().create(ApiInterface.class).search(treatment, speciality, lat, lng
-        ).enqueue(new Callback<SearchModel>() {
-            @Override
-            public void onResponse(Call<SearchModel> call, Response<SearchModel> response) {
-                dismissProgressDialog();
-                Config.searchModel = response.body();
-                startActivity(new Intent(HomeActivity.this,DoctorsActivity.class));
-            }
+    private void logout() {
+        AppPreferences.getAppPreferences(getApplicationContext()).setUserData("");
 
-            @Override
-            public void onFailure(Call<SearchModel> call, Throwable t) {
-                call.cancel();
-                dismissProgressDialog();
-            }
-        });
-    }*/
+        ((MenuItem) navigationView.getMenu().findItem(R.id.navigation_login)).setTitle("Login");
+    }
 
     private void search(final String treatment, final String speciality, final double lat, final double lng) {
         new AsyncTask<String, Void, String>() {
@@ -197,7 +196,7 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
                 map.put("specialty", speciality);
                 map.put("latitute", lat + "");
                 map.put("longitute", lng + "");
-                return HTTPUrlConnection.getInstance().loadPost(Config.BASE_URL + "/api", map);
+                return HTTPUrlConnection.getInstance().loadPost(Config.BASE_URL + "api", map);
             }
 
             @Override
@@ -235,8 +234,9 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
                 StringBuilder jsonResults = new StringBuilder();
                 StringBuilder stringBuilder = new StringBuilder();
                 try {
-                    StringBuilder sb = new StringBuilder("http://maps.google.com/maps/api/geocode/json");
+                    StringBuilder sb = new StringBuilder("https://maps.google.com/maps/api/geocode/json");
                     sb.append("?address=" + URLEncoder.encode(address, "utf8"));
+                    sb.append("&key="+API_KEY);
                     sb.append("&sensor=false");
 
                     URL url = new URL(sb.toString());
@@ -296,7 +296,7 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
         private static final String TYPE_AUTOCOMPLETE = "/autocomplete";
         private static final String OUT_JSON = "/json";
 
-        private static final String API_KEY = "AIzaSyCs7y9plmgR49eaBqe1D7hj5ezYzEk08rs";
+
 
         public ArrayList<String> autocomplete(String input) {
             ArrayList<String> resultList = null;
