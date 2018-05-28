@@ -229,13 +229,13 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
             @Override
             protected Void doInBackground(String... add) {
                 String str = add[0];
-                String address = str.replaceAll(" ", "%20");
+                //String address = str.replaceAll(" ", "%20");
                 HttpURLConnection conn = null;
                 StringBuilder jsonResults = new StringBuilder();
                 StringBuilder stringBuilder = new StringBuilder();
                 try {
                     StringBuilder sb = new StringBuilder("https://maps.google.com/maps/api/geocode/json");
-                    sb.append("?address=" + URLEncoder.encode(address, "utf8"));
+                    sb.append("?address=" + URLEncoder.encode(str, "utf8"));
                     sb.append("&key="+API_KEY);
                     sb.append("&sensor=false");
 
