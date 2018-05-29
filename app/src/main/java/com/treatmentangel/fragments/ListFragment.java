@@ -60,6 +60,7 @@ public class ListFragment extends Fragment {
         for (int i = 0; i < Config.searchResultArray.length(); i++) {
             try {
                 HospitalModel model = new HospitalModel();
+                model.setId(((JSONObject)Config.searchResultArray.get(i)).getString("npiid"));
                 model.setName(((JSONObject)Config.searchResultArray.get(i)).getString("org_name"));
                 model.setDetail(((JSONObject)Config.searchResultArray.get(i)).getString("address1"));
                 model.setRating("" + i);

@@ -134,7 +134,8 @@ public class RegisterActivity extends BaseActivity {
                 try {
                     JSONObject obj = new JSONObject(result);
                     if (obj.getString("status_id").equalsIgnoreCase("1")) {
-                        AppPreferences.getAppPreferences(getApplicationContext()).setUserData(obj.toString());
+                        JSONObject data = obj.getJSONObject("user_data");
+                        AppPreferences.getAppPreferences(getApplicationContext()).setUserData(data.toString());
                         startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
                         finish();
                     } else {

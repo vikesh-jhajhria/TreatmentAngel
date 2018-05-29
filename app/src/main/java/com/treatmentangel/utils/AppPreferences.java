@@ -6,6 +6,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Base64;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 
 public class AppPreferences {
@@ -35,7 +38,7 @@ public class AppPreferences {
     }
 
     public long getLoginTime() {
-        return mPrefs.getLong(LOGIN_TIME,0);
+        return mPrefs.getLong(LOGIN_TIME, 0);
     }
 
     public void setLoginTime(long value) {
@@ -43,6 +46,7 @@ public class AppPreferences {
         editor.putLong(LOGIN_TIME, value);
         editor.commit();
     }
+
     public String getFirebaseId() {
         return mPrefs.getString(FIREBASE_ID, "");
     }
@@ -73,8 +77,23 @@ public class AppPreferences {
         editor.putString(USER_NAME, name);
         editor.commit();
     }
+
     public String getUserData() {
         return mPrefs.getString(USER_DATA, "");
+    }
+
+    /*{"status_id":"1","status_msg":"Login successfully",
+    "user_data":{"user_id":"7771","user_email":"vikesh.jhajhriaa@gmail.com",
+    "first_name":"vikesh","last_name":"kumar","phone_number":"9413936322"}}*/
+    public JSONObject getUserDataObject() {
+        JSONObject object = null;
+        try {
+            object = new JSONObject(mPrefs.getString(USER_DATA, ""));
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return object;
     }
 
     public void setUserData(String data) {

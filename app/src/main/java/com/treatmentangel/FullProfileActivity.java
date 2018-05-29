@@ -10,10 +10,14 @@ import com.treatmentangel.adapter.ProfilePagerAdapter;
 
 public class FullProfileActivity extends BaseActivity {
 
+    public String userId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_full_profile);
+
+        userId = getIntent().getStringExtra("ID");
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.findViewById(R.id.back).setOnClickListener(this);
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);

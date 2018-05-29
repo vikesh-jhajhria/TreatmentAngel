@@ -5,6 +5,7 @@ package com.treatmentangel.model;
  */
 
 public class HospitalModel {
+    private String id;
     private String name;
     private String detail;
 
@@ -33,4 +34,12 @@ public class HospitalModel {
     }
 
     private String rating;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 }

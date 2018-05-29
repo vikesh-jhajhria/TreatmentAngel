@@ -31,6 +31,7 @@ import com.treatmentangel.utils.ApiInterface;
 import com.treatmentangel.utils.AppPreferences;
 import com.treatmentangel.utils.Config;
 import com.treatmentangel.utils.HTTPUrlConnection;
+import com.treatmentangel.utils.Utils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -82,6 +83,9 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
                 return true;
             case R.id.navigation_notifications:
                 startActivity(new Intent(HomeActivity.this, NotificationActivity.class));
+                return true;
+            case R.id.navigation_favourite:
+                startActivity(new Intent(HomeActivity.this, FavouriteActivity.class));
                 return true;
         }
 
@@ -175,9 +179,15 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
 
 
     private void logout() {
-        AppPreferences.getAppPreferences(getApplicationContext()).setUserData("");
+        Utils.showDecisionDialog(this, "Alert!", "Do you really want to logout?", new Utils.AlertCallback() {
+            @Override
+            public void callback() {
+                AppPreferences.getAppPreferences(getApplicationContext()).setUserData("");
 
-        ((MenuItem) navigationView.getMenu().findItem(R.id.navigation_login)).setTitle("Login");
+                ((MenuItem) navigationView.getMenu().findItem(R.id.navigation_login)).setTitle("Login");
+            }
+        });
+
     }
 
     private void search(final String treatment, final String speciality, final double lat, final double lng) {

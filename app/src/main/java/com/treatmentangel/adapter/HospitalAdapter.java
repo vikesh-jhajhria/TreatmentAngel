@@ -33,7 +33,7 @@ public class HospitalAdapter extends RecyclerView.Adapter<HospitalAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        HospitalModel model = mList.get(position);
+        final HospitalModel model = mList.get(position);
         holder.name.setText(model.getName());
         holder.review.setText(model.getRating() + " Reviews");
         holder.detail.setText(model.getDetail());
@@ -41,7 +41,8 @@ public class HospitalAdapter extends RecyclerView.Adapter<HospitalAdapter.ViewHo
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mContext.startActivity(new Intent(mContext,FullProfileActivity.class));
+                mContext.startActivity(new Intent(mContext,FullProfileActivity.class)
+                .putExtra("ID",model.getId()));
             }
         });
     }

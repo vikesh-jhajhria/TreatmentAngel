@@ -97,7 +97,7 @@ public class LoginActivity extends BaseActivity {
                     JSONObject obj = new JSONObject(result);
                     if (obj.getString("status_id").equalsIgnoreCase("1")) {
                         JSONObject data = obj.getJSONObject("user_data");
-                        AppPreferences.getAppPreferences(getApplicationContext()).setUserData(obj.toString());
+                        AppPreferences.getAppPreferences(getApplicationContext()).setUserData(data.toString());
                         startActivity(new Intent(LoginActivity.this, HomeActivity.class));
                         finish();
                     } else {
