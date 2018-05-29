@@ -85,7 +85,17 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
                 startActivity(new Intent(HomeActivity.this, NotificationActivity.class));
                 return true;
             case R.id.navigation_favourite:
-                startActivity(new Intent(HomeActivity.this, FavouriteActivity.class));
+                if (!preferences.getUserData().isEmpty()) {
+                    startActivity(new Intent(HomeActivity.this, FavouriteActivity.class));
+                } else {
+                    Utils.showDecisionDialog(this, "Alert!", "Please login first", new Utils.AlertCallback() {
+                        @Override
+                        public void callback() {
+                            startActivity(new Intent(HomeActivity.this, LoginActivity.class));
+                        }
+                    });
+                }
+
                 return true;
         }
 
